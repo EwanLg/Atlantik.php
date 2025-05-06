@@ -7,10 +7,12 @@
     <script src="<?= base_url('assets/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
 </head>
 <body>
-    
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
         <a class="navbar-brand" href="<?= base_url('/') ?>">Atlantik</a>
+        <a class="navbar-brand" href="<?= base_url('register') ?>">Créer un compte</a>
+        <a class="navbar-brand" href="<?= base_url('seconnecter') ?>">Se connecter</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>

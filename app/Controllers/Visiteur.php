@@ -30,7 +30,7 @@ class Visiteur extends BaseController
 
             return view('Templates/Header', $data) // Renvoi formulaire de connexion
 
-            . view('Client/vue_SeConnecter')
+            . view('Visiteur/vue_SeConnecter')
 
             . view('Templates/Footer');
 
@@ -58,7 +58,7 @@ class Visiteur extends BaseController
 
             return view('Templates/Header', $data)
 
-            . view('Client/vue_SeConnecter') // Renvoi formulaire de connexion
+            . view('Visiteur/vue_SeConnecter') // Renvoi formulaire de connexion
 
             . view('Templates/Footer');
 
@@ -108,7 +108,7 @@ class Visiteur extends BaseController
 
             echo view('Templates/Header', $data);
 
-            echo view('Client/vue_ConnexionReussie');
+            echo view('Visiteur/vue_ConnexionReussie');
 
         } else {
 
@@ -118,7 +118,7 @@ class Visiteur extends BaseController
 
             return view('Templates/Header', $data)
 
-            . view('Client/vue_SeConnecter')
+            . view('Visiteur/vue_SeConnecter')
 
             . view('Templates/Footer');
 
@@ -134,4 +134,39 @@ class Visiteur extends BaseController
         returnredirect()->to('seconnecter');
 
     } // Fin seDeconnecter
+
+    public function register()
+    {
+        helper(['form', 'url']);
+
+        if ($this->request->getMethod() === 'post') {
+            $data = [
+                'nom'              => $this->request->getPost('txtNom'),
+                'prenom'           => $this->request->getPost('txtPrenom'),
+                'adresse'          => $this->request->getPost('txtAdresse'),
+                'code_postal'      => $this->request->getPost('txtCodepostal'),
+                'ville'            => $this->request->getPost('txtVille'),
+                'telephone_fixe'   => $this->request->getPost('txtTelephonefixe'),
+                'telephone_mobile' => $this->request->getPost('txtTelephonemobile'),
+                'email'            => $this->request->getPost('txtMel'),
+                'mot_de_passe'     => $this->request->getPost('txtMotdepasse'),
+            ];
+
+            // Ici tu peux faire des traitements : sauvegarde BDD, validation, etc.
+            // Par exemple : return view avec un message
+            return view('Templates/Header', $data)
+
+            . view('Visiteur/vue_registerreussi')
+
+            . view('Templates/Footer');
+        }
+
+        $data['TitreDeLaPage'] = 'Créer un compte';
+        // Si pas POST, redirige vers la vue du formulaire (optionnel)
+        return view('Templates/Header', $data)
+
+            . view('Visiteur/vue_register')
+
+            . view('Templates/Footer');
+    }
 }

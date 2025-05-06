@@ -20,13 +20,15 @@
 
   echo form_input('txtIdentifiant', set_value('txtIdentifiant'));    
 
- 
+  echo '<br>';
+  echo '<br>';
 
   echo form_label('Mot de passe','txtMotDePasse');
 
   echo form_password('txtMotDePasse', set_value('txtMotDePasse'));    
 
- 
+  echo '<br>';
+  echo '<br>';
 
   echo form_submit('submit', 'Se connecter');
 
