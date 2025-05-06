@@ -5,7 +5,6 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'Home::index');
 
 // Administrateur
 
@@ -13,5 +12,5 @@ $routes->get('/', 'Home::index');
 
 // Visiteur
 
-$routes->get('atlantik', 'visiteur::accueil');
+$routes->get('/', 'visiteur::accueil');
 $routes->match(['get', 'post'], 'seconnecter', 'Visiteur::seConnecter');
