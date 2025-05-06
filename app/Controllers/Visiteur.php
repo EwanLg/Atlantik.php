@@ -6,7 +6,9 @@ class Visiteur extends BaseController
 {
     public function accueil()
     {
-        return view('Visiteur/vue_accueil');
+        return view('Templates/Header')
+                .view('Visiteur/vue_accueil')
+                .view('Templates/Footer');
     }
 
     public function seConnecter()
@@ -28,7 +30,7 @@ class Visiteur extends BaseController
 
             return view('Templates/Header', $data) // Renvoi formulaire de connexion
 
-            . view('Visiteur/vue_SeConnecter')
+            . view('Client/vue_SeConnecter')
 
             . view('Templates/Footer');
 
@@ -56,7 +58,7 @@ class Visiteur extends BaseController
 
             return view('Templates/Header', $data)
 
-            . view('Visiteur/vue_SeConnecter') // Renvoi formulaire de connexion
+            . view('Client/vue_SeConnecter') // Renvoi formulaire de connexion
 
             . view('Templates/Footer');
 
@@ -106,7 +108,7 @@ class Visiteur extends BaseController
 
             echo view('Templates/Header', $data);
 
-            echo view('Visiteur/vue_ConnexionReussie');
+            echo view('Client/vue_ConnexionReussie');
 
         } else {
 
@@ -116,7 +118,7 @@ class Visiteur extends BaseController
 
             return view('Templates/Header', $data)
 
-            . view('Visiteur/vue_SeConnecter')
+            . view('Client/vue_SeConnecter')
 
             . view('Templates/Footer');
 

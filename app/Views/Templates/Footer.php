@@ -1,5 +1,5 @@
-<p><em>&copy; BTS SIO</em></p>
 
-</body>
+    <p>eRabelais</p>
 
-</html>
+    </body>
+    </html>
