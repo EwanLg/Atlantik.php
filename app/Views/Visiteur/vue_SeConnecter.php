@@ -16,9 +16,9 @@
 
  
 
-  echo form_label('Identifiant','txtIdentifiant');
+  echo form_label('Mel','txtmel');
 
-  echo form_input('txtIdentifiant', set_value('txtIdentifiant'));    
+  echo form_input('txtmel', set_value('txtmel'));    
 
   echo '<br>';
   echo '<br>';

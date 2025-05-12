@@ -1,17 +1,20 @@
 <?php
 
 namespace App\Controllers;
+use App\Models\ModeleUtilisateur;
 
 class Visiteur extends BaseController
 {
     public function accueil()
     {
-        return view('Templates/Header')
+        $data['TitreDeLaPage'] = 'Atlantik - Accueil';
+
+        return view('Templates/Header', $data)
                 .view('Visiteur/vue_accueil')
                 .view('Templates/Footer');
     }
 
-    public function seConnecter()
+    public function seconnecter()
     {
 
         helper(['form']);
@@ -30,7 +33,7 @@ class Visiteur extends BaseController
 
             return view('Templates/Header', $data) // Renvoi formulaire de connexion
 
-            . view('Visiteur/vue_SeConnecter')
+            . view('Visiteur/vue_seconnecter')
 
             . view('Templates/Footer');
 
@@ -44,7 +47,7 @@ class Visiteur extends BaseController
 
         $reglesValidation = [ // Régles de validation
 
-            'txtIdentifiant' => 'required',
+            'txtmel' => 'required',
 
             'txtMotDePasse' => 'required',
 
@@ -58,7 +61,7 @@ class Visiteur extends BaseController
 
             return view('Templates/Header', $data)
 
-            . view('Visiteur/vue_SeConnecter') // Renvoi formulaire de connexion
+            . view('Visiteur/vue_seconnecter') // Renvoi formulaire de connexion
 
             . view('Templates/Footer');
 
@@ -68,7 +71,7 @@ class Visiteur extends BaseController
 
         /* RECHERCHE UTILISATEUR DANS BDD */
 
-        $Identifiant = $this->request->getPost('txtIdentifiant');
+        $mel = $this->request->getPost('txtmel');
 
         $MdP = $this->request->getPost('txtMotDePasse');
 
@@ -76,9 +79,9 @@ class Visiteur extends BaseController
 
         /* on va chercher dans la BDD l'utilisateur correspondant aux id et mot de passe saisis */
 
-        $modUtilisateur = newModeleUtilisateur(); // instanciation modèle
+        $modUtilisateur = new ModeleUtilisateur(); // instanciation modèle
 
-        $condition = ['identifiant'=>$Identifiant,'motdepasse'=>$MdP];
+        $condition = ['mel'=>$mel,'motdepasse'=>$MdP];
 
         $utilisateurRetourne = $modUtilisateur->where($condition)->first();
 
@@ -86,7 +89,7 @@ class Visiteur extends BaseController
 
         ici sous forme d'un objet, le résultat de la requête :
 
-        SELECT * FROM utilisateur  WHERE identifiant='$pId' and motdepasse='$MotdePasse
+        SELECT * FROM utilisateur  WHERE mel='$pId' and motdepasse='$MotdePasse
 
         utilisateurRetourne = objet utilisateur ($returnType = 'object')
 
@@ -96,15 +99,15 @@ class Visiteur extends BaseController
 
         if ($utilisateurRetourne != null) {
 
-            /* identifiant et mot de passe OK : identifiant et profil sont stockés en session */
+            /* mel et mot de passe OK : mel et profil sont stockés en session */
 
-            $session->set('identifiant', $utilisateurRetourne->identifiant);
+            $session->set('mel', $utilisateurRetourne->mel);
 
             $session->set('profil', $utilisateurRetourne->profil);
 
             // profil = "SuperAdministrateur ou "Administrateur"
 
-            $data['Identifiant'] = $Identifiant;
+            $data['mel'] = $mel;
 
             echo view('Templates/Header', $data);
 
@@ -112,13 +115,13 @@ class Visiteur extends BaseController
 
         } else {
 
-            /* identifiant et/ou mot de passe OK : on renvoie le formulaire  */
+            /* mel et/ou mot de passe OK : on renvoie le formulaire  */
 
-            $data['TitreDeLaPage'] = "Identifiant ou/et Mot de passe inconnu(s)";
+            $data['TitreDeLaPage'] = "mel ou/et Mot de passe inconnu(s)";
 
             return view('Templates/Header', $data)
 
-            . view('Visiteur/vue_SeConnecter')
+            . view('Visiteur/vue_seconnecter')
 
             . view('Templates/Footer');
 
@@ -136,37 +139,64 @@ class Visiteur extends BaseController
     } // Fin seDeconnecter
 
     public function register()
-    {
-        helper(['form', 'url']);
+{
+    helper(['form', 'url']);
 
-        if ($this->request->getMethod() === 'post') {
-            $data = [
-                'nom'              => $this->request->getPost('txtNom'),
-                'prenom'           => $this->request->getPost('txtPrenom'),
-                'adresse'          => $this->request->getPost('txtAdresse'),
-                'code_postal'      => $this->request->getPost('txtCodepostal'),
-                'ville'            => $this->request->getPost('txtVille'),
-                'telephone_fixe'   => $this->request->getPost('txtTelephonefixe'),
-                'telephone_mobile' => $this->request->getPost('txtTelephonemobile'),
-                'email'            => $this->request->getPost('txtMel'),
-                'mot_de_passe'     => $this->request->getPost('txtMotdepasse'),
-            ];
+    if ($this->request->is('post')) {
 
-            // Ici tu peux faire des traitements : sauvegarde BDD, validation, etc.
-            // Par exemple : return view avec un message
+        // Règles de validation
+        $reglesValidation = [
+            'txtNom'            => 'required',
+            'txtPrenom'         => 'required',
+            'txtAdresse'        => 'required',
+            'txtCodepostal'     => 'required|alpha_numeric',
+            'txtVille'          => 'required',
+            'txtTelephonefixe'  => 'required|alpha_numeric',
+            'txtTelephonemobile'=> 'required|alpha_numeric',
+            'txtMel'            => 'required',
+            'txtMotdepasse'     => 'required',
+        ];
+
+        // Validation du formulaire
+        if (!$this->validate($reglesValidation)) {
+            // Formulaire non validé, afficher les erreurs et rediriger
+            $data['TitreDeLaPage'] = "Formulaire invalide";
+
             return view('Templates/Header', $data)
-
-            . view('Visiteur/vue_registerreussi')
-
-            . view('Templates/Footer');
+                . view('Visiteur/vue_register')  // Rediriger vers le formulaire avec les erreurs
+                . view('Templates/Footer');
         }
 
-        $data['TitreDeLaPage'] = 'Créer un compte';
-        // Si pas POST, redirige vers la vue du formulaire (optionnel)
+        // Si le formulaire est validé, préparer les données pour insertion
+        $data = [
+            'nom'             => $this->request->getPost('txtNom'),
+            'prenom'          => $this->request->getPost('txtPrenom'),
+            'adresse'         => $this->request->getPost('txtAdresse'),
+            'codepostal'      => $this->request->getPost('txtCodepostal'),
+            'ville'           => $this->request->getPost('txtVille'),
+            'telephonefixe'   => $this->request->getPost('txtTelephonefixe'),
+            'telephonemobile' => $this->request->getPost('txtTelephonemobile'),
+            'mel'             => $this->request->getPost('txtMel'),
+            'motdepasse'      => $this->request->getPost('txtMotdepasse'),  // Sécurisation du mot de passe
+        ];
+
+        // Insérer l'utilisateur dans la base de données
+        $modeleutilisateur = new ModeleUtilisateur();
+        $modeleutilisateur->insert($data);
+
+        $data['TitreDeLaPage'] = 'Se connecter';
+
         return view('Templates/Header', $data)
-
-            . view('Visiteur/vue_register')
-
+            . view('Visiteur/vue_registerreussi') // Afficher le message de succès
+            . view('Visiteur/vue_seconnecter')  // Permettre à l'utilisateur de se connecter
             . view('Templates/Footer');
     }
+
+    // Si pas de POST, renvoyer le formulaire d'inscription
+    $data['TitreDeLaPage'] = 'Créer un compte';
+    return view('Templates/Header', $data)
+        . view('Visiteur/vue_register')  // Formulaire d'inscription
+        . view('Templates/Footer');
+}
+
 }
