@@ -47,7 +47,7 @@ class Visiteur extends BaseController
 
         $reglesValidation = [ // Régles de validation
 
-            'txtmel' => 'required',
+            'txtMEL' => 'required',
 
             'txtMotDePasse' => 'required',
 
@@ -71,7 +71,7 @@ class Visiteur extends BaseController
 
         /* RECHERCHE UTILISATEUR DANS BDD */
 
-        $mel = $this->request->getPost('txtmel');
+        $MEL = $this->request->getPost('txtMEL');
 
         $MdP = $this->request->getPost('txtMotDePasse');
 
@@ -81,7 +81,7 @@ class Visiteur extends BaseController
 
         $modUtilisateur = new ModeleUtilisateur(); // instanciation modèle
 
-        $condition = ['mel'=>$mel,'motdepasse'=>$MdP];
+        $condition = ['MEL'=>$MEL,'motdepasse'=>$MdP];
 
         $utilisateurRetourne = $modUtilisateur->where($condition)->first();
 
@@ -89,7 +89,7 @@ class Visiteur extends BaseController
 
         ici sous forme d'un objet, le résultat de la requête :
 
-        SELECT * FROM utilisateur  WHERE mel='$pId' and motdepasse='$MotdePasse
+        SELECT * FROM utilisateur  WHERE MEL='$pId' and motdepasse='$MotdePasse
 
         utilisateurRetourne = objet utilisateur ($returnType = 'object')
 
@@ -99,25 +99,36 @@ class Visiteur extends BaseController
 
         if ($utilisateurRetourne != null) {
 
-            /* mel et mot de passe OK : mel et profil sont stockés en session */
+            /* MEL et mot de passe OK : MEL est stocké en session */
 
-            $session->set('mel', $utilisateurRetourne->mel);
+            $MEL = $utilisateurRetourne->MEL;
+            $NOM = $utilisateurRetourne->NOM;
+            $PRENOM = $utilisateurRetourne->PRENOM;
 
-            $session->set('profil', $utilisateurRetourne->profil);
+            $session->set('MEL', $MEL);
+            $session->set('NOM', $NOM);
+            $session->set('PRENOM', $PRENOM);
 
-            // profil = "SuperAdministrateur ou "Administrateur"
+            $data['MEL'] = $MEL;
+            $data['NOM'] = $NOM;
+            $data['PRENOM'] = $PRENOM;
+            $data['TitreDeLaPage'] = "Accueil - Atlantik";
 
-            $data['mel'] = $mel;
+            $session->set('connecté', true);
 
-            echo view('Templates/Header', $data);
+            return view('Templates/Header', $data)
 
-            echo view('Visiteur/vue_ConnexionReussie');
+            . view('Visiteur/vue_connexionreussie')
+
+            . view('Visiteur/vue_accueil')
+
+            . view('Templates/Footer');
 
         } else {
 
-            /* mel et/ou mot de passe OK : on renvoie le formulaire  */
+            /* MEL et/ou mot de passe OK : on renvoie le formulaire  */
 
-            $data['TitreDeLaPage'] = "mel ou/et Mot de passe inconnu(s)";
+            $data['TitreDeLaPage'] = "MEL ou/et Mot de passe inconnu(s)";
 
             return view('Templates/Header', $data)
 
@@ -129,12 +140,20 @@ class Visiteur extends BaseController
 
     } // Fin seConnecter
 
-    public function seDeconnecter()
+    public function sedeconnecter()
     {
 
         session()->destroy();
 
-        returnredirect()->to('seconnecter');
+        $data['TitreDeLaPage'] = "Accueil - Atlantik";
+
+        return view('Templates/Header', $data)
+
+        . view('Visiteur/vue_deconnexionreussie')
+
+        . view('Visiteur/vue_accueil')
+
+        . view('Templates/Footer');
 
     } // Fin seDeconnecter
 
@@ -153,7 +172,7 @@ class Visiteur extends BaseController
             'txtVille'          => 'required',
             'txtTelephonefixe'  => 'required|alpha_numeric',
             'txtTelephonemobile'=> 'required|alpha_numeric',
-            'txtMel'            => 'required',
+            'txtMEL'            => 'required',
             'txtMotdepasse'     => 'required',
         ];
 
@@ -176,7 +195,7 @@ class Visiteur extends BaseController
             'ville'           => $this->request->getPost('txtVille'),
             'telephonefixe'   => $this->request->getPost('txtTelephonefixe'),
             'telephonemobile' => $this->request->getPost('txtTelephonemobile'),
-            'mel'             => $this->request->getPost('txtMel'),
+            'MEL'             => $this->request->getPost('txtMEL'),
             'motdepasse'      => $this->request->getPost('txtMotdepasse'),  // Sécurisation du mot de passe
         ];
 
@@ -198,5 +217,14 @@ class Visiteur extends BaseController
         . view('Visiteur/vue_register')  // Formulaire d'inscription
         . view('Templates/Footer');
 }
+
+public function liaisons()
+    {
+        $data['TitreDeLaPage'] = 'Atlantik - Liaisons';
+
+        return view('Templates/Header', $data)
+                .view('Visiteur/vue_liaisons')
+                .view('Templates/Footer');
+    }
 
 }

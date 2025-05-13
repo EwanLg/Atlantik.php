@@ -1,37 +1,27 @@
 <h2><?php echo $TitreDeLaPage ?></h2>
 
-<?php
+<?php if ($TitreDeLaPage == 'Saisie incorrecte'): ?>
+    <div class="alert alert-danger">
+        <?= service('validation')->listErrors(); ?>
+    </div>
+<?php endif; ?>
 
-  if ($TitreDeLaPage=='Saisie incorrecte')
+<form action="<?= base_url('seconnecter') ?>" method="POST">
+    <?= csrf_field(); ?>
+    
+    <div class="mb-3">
+        <label for="txtMEL" class="form-label">MEL</label>
+        <input type="email" class="form-control" id="txtMEL" name="txtMEL" value="<?= set_value('txtMEL'); ?>" required>
+    </div>
 
-    echo service('validation')->listErrors();
+    <div class="mb-3">
+        <label for="txtMotDePasse" class="form-label">Mot de passe</label>
+        <input type="password" class="form-control" id="txtMotDePasse" name="txtMotDePasse" value="<?= set_value('txtMotDePasse'); ?>" required>
+    </div>
 
- 
+    <button type="submit" class="btn btn-primary">Se connecter</button>
+</form>
 
-  /* set_value : en cas de non validation, les données déjà saisies sont réinjectées dans le formulaire */
-
-  echo form_open('seconnecter');
-
-  echo csrf_field();
-
- 
-
-  echo form_label('Mel','txtmel');
-
-  echo form_input('txtmel', set_value('txtmel'));    
-
-  echo '<br>';
-  echo '<br>';
-
-  echo form_label('Mot de passe','txtMotDePasse');
-
-  echo form_password('txtMotDePasse', set_value('txtMotDePasse'));    
-
-  echo '<br>';
-  echo '<br>';
-
-  echo form_submit('submit', 'Se connecter');
-
-  echo form_close();
-
-?>
+<br>
+<br>
+<a href="<?= base_url('register') ?>" class="btn btn-primary rounded-pill px-4 py-2 shadow">Créer un compte</a>

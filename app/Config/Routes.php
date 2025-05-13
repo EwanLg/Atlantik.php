@@ -15,3 +15,5 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('/', 'visiteur::accueil');
 $routes->match(['get', 'post'], 'seconnecter', 'Visiteur::seconnecter');
 $routes->match(['get', 'post'], 'register', 'Visiteur::register');
+$routes->match(['get', 'post'], 'sedeconnecter', 'Visiteur::sedeconnecter');
+$routes->match(['get', 'post'], 'liaisons', 'Visiteur::liaisons');

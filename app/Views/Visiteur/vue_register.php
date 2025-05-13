@@ -1,80 +1,62 @@
-<h2><?php echo $TitreDeLaPage ?></h2>
+<h2><?= $TitreDeLaPage ?></h2>
 
-<?php
+<form action="<?= base_url('register') ?>" method="POST">
+    <?= csrf_field(); ?>
 
-    echo form_open('register');
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="txtNom" class="form-label">Nom</label>
+            <input type="text" class="form-control" id="txtNom" name="txtNom" value="<?= set_value('txtNom'); ?>" required>
+        </div>
 
-    /* 'bonjournom' entrée routée vers 'Test::bonjourNom', en POST =  
+        <div class="col-md-6 mb-3">
+            <label for="txtPrenom" class="form-label">Prénom</label>
+            <input type="text" class="form-control" id="txtPrenom" name="txtPrenom" value="<?= set_value('txtPrenom'); ?>" required>
+        </div>
+    </div>
 
-    Méthode bonjourNom de Test appelée pour traitement formulaire */
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="txtAdresse" class="form-label">Adresse</label>
+            <input type="text" class="form-control" id="txtAdresse" name="txtAdresse" value="<?= set_value('txtAdresse'); ?>" required>
+        </div>
 
-    echo csrf_field(); // Pour sécurité
+        <div class="col-md-6 mb-3">
+            <label for="txtCodepostal" class="form-label">Code postal</label>
+            <input type="text" class="form-control" id="txtCodepostal" name="txtCodepostal" value="<?= set_value('txtCodepostal'); ?>" required>
+        </div>
+    </div>
 
-    echo form_label('Entrez votre nom ','txtNom');
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="txtVille" class="form-label">Ville</label>
+            <input type="text" class="form-control" id="txtVille" name="txtVille" value="<?= set_value('txtVille'); ?>" required>
+        </div>
 
-    echo form_input('txtNom','');  
+        <div class="col-md-6 mb-3">
+            <label for="txtTelephonefixe" class="form-label">Téléphone fixe</label>
+            <input type="text" class="form-control" id="txtTelephonefixe" name="txtTelephonefixe" value="<?= set_value('txtTelephonefixe'); ?>" required>
+        </div>
+    </div>
 
-    echo '<br>';
-    echo '<br>';
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="txtTelephonemobile" class="form-label">Téléphone mobile</label>
+            <input type="text" class="form-control" id="txtTelephonemobile" name="txtTelephonemobile" value="<?= set_value('txtTelephonemobile'); ?>" required>
+        </div>
 
-    echo form_label('Entrez votre prénom ','txtPrenom');
+        <div class="col-md-6 mb-3">
+            <label for="txtMel" class="form-label">E-mail</label>
+            <input type="email" class="form-control" id="txtMel" name="txtMel" value="<?= set_value('txtMel'); ?>" required>
+        </div>
+    </div>
 
-    echo form_input('txtPrenom','');  
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="txtMotdepasse" class="form-label">Mot de passe</label>
+            <input type="password" class="form-control" id="txtMotdepasse" name="txtMotdepasse" value="<?= set_value('txtMotdepasse'); ?>" required>
+        </div>
+    </div>
 
-    echo '<br>';
-    echo '<br>';
-
-    echo form_label('Entrez votre Adresse ','txtAdresse');
-
-    echo form_input('txtAdresse','');  
-
-    echo '<br>';
-    echo '<br>';
-
-    echo form_label('Entrez votre Code Postal ','txtCodepostal');
-
-    echo form_input('txtCodepostal','');  
-
-    echo '<br>';
-    echo '<br>';
-
-    echo form_label('Entrez votre Ville ','txtVille');
-
-    echo form_input('txtVille','');  
-
-    echo '<br>';
-    echo '<br>';
-
-    echo form_label('Entrez votre Telephone Fixe ','txtTelephonefixe');
-
-    echo form_input('txtTelephonefixe','');  
-
-    echo '<br>';
-    echo '<br>';
-
-    echo form_label('Entrez votre Telephone Mobile ','txtTelephonemobile');
-
-    echo form_input('txtTelephonemobile','');  
-
-    echo '<br>';
-    echo '<br>';
-
-    echo form_label('Entrez votre e-mail ','txtMel');
-
-    echo form_input('txtMel','');  
-
-    echo '<br>';
-    echo '<br>';
-
-    echo form_label('Créer un mot de passe ','txtMotdepasse');
-
-    echo form_input('txtMotdepasse','');  
-
-    echo '<br>';
-    echo '<br>';
-
-    echo form_submit('btnOK','Créer');
-
-    echo form_close();
-
-?>
+    <button type="submit" class="btn btn-primary">Créer</button>
+</form>
