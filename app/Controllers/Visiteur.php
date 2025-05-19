@@ -5,14 +5,7 @@ use App\Models\ModeleUtilisateur;
 
 class Visiteur extends BaseController
 {
-    public function accueil()
-    {
-        $data['TitreDeLaPage'] = 'Atlantik - Accueil';
-
-        return view('Templates/Header', $data)
-                .view('Visiteur/vue_accueil')
-                .view('Templates/Footer');
-    }
+    
 
     public function seconnecter()
     {
@@ -104,10 +97,12 @@ class Visiteur extends BaseController
             $MEL = $utilisateurRetourne->MEL;
             $NOM = $utilisateurRetourne->NOM;
             $PRENOM = $utilisateurRetourne->PRENOM;
+            $NOCLIENT = $utilisateurRetourne->NOCLIENT;
 
             $session->set('MEL', $MEL);
             $session->set('NOM', $NOM);
             $session->set('PRENOM', $PRENOM);
+            $session->set('NOCLIENT', $NOCLIENT);
 
             $data['MEL'] = $MEL;
             $data['NOM'] = $NOM;
@@ -216,6 +211,98 @@ class Visiteur extends BaseController
     return view('Templates/Header', $data)
         . view('Visiteur/vue_register')  // Formulaire d'inscription
         . view('Templates/Footer');
+}
+
+public function moncompte()
+{
+    $session = session();
+    $mel = $session->get('MEL');
+
+    $modeleUtilisateur = new ModeleUtilisateur();
+    $utilisateur = $modeleUtilisateur->where(['MEL' => $mel])->first();
+
+    $data['TitreDeLaPage'] = 'Mon Compte';
+    $data['utilisateur'] = $utilisateur;
+
+    return view('Templates/Header', $data)
+        . view('Visiteur/vue_compte')
+        . view('Templates/Footer');
+}
+
+public function modifiermoncompte()
+{
+    helper(['form']);
+
+    $session = session();
+
+    // Récupérer l'id utilisateur en session (ici j'imagine que c’est noclient)
+    // Adaptation possible selon ta gestion des sessions
+    $noclient = $session->get('NOCLIENT'); 
+    if (!$noclient) {
+        return redirect()->to(site_url('seconnecter'));
+    }
+
+    // Règles de validation
+    $reglesValidation = [
+        'nom'       => 'required',
+        'prenom'    => 'required',
+        'adresse'   => 'required',
+        'codepostal'=> 'required|alpha_numeric',
+        'ville'     => 'required',
+        // Les téléphones sont optionnels, validation seulement si activés
+    ];
+
+    if (!$this->validate($reglesValidation)) {
+        // Recharger le formulaire avec erreurs et données actuelles
+        $modUtilisateur = new ModeleUtilisateur();
+        $utilisateur = $modUtilisateur->find($noclient);
+
+        $data['TitreDeLaPage'] = 'Modifier mes informations';
+        $data['validation'] = $this->validator;
+        $data['utilisateur'] = $utilisateur;
+
+        return view('Templates/Header', $data)
+            . view('Visiteur/vue_modifiermoncompte')
+            . view('Templates/Footer');
+    }
+
+    // Récupérer les données POST
+    $nom = $this->request->getPost('nom');
+    $prenom = $this->request->getPost('prenom');
+    $adresse = $this->request->getPost('adresse');
+    $codepostal = $this->request->getPost('codepostal');
+    $ville = $this->request->getPost('ville');
+
+    // Gestion des téléphones avec cases à cocher
+    $telephonefixe = $this->request->getPost('active_fixe') ? $this->request->getPost('telephonefixe') : null;
+    $telephonemobile = $this->request->getPost('active_mobile') ? $this->request->getPost('telephonemobile') : null;
+
+    // Préparer les données à mettre à jour
+    $donnees = [
+        'nom'             => $nom,
+        'prenom'          => $prenom,
+        'adresse'         => $adresse,
+        'codepostal'      => $codepostal,
+        'ville'           => $ville,
+        'telephonefixe'   => $telephonefixe,
+        'telephonemobile' => $telephonemobile,
+    ];
+
+    $modUtilisateur = new ModeleUtilisateur();
+
+    // Mise à jour
+    if ($modUtilisateur->update($noclient, $donnees)) {
+        // Mise à jour des sessions NOM, PRENOM si besoin
+        $session->set('NOM', $nom);
+        $session->set('PRENOM', $prenom);
+
+        $session->setFlashdata('success', 'Informations mises à jour avec succès.');
+
+        return redirect()->to(site_url('moncompte'));
+    } else {
+        $session->setFlashdata('error', 'Une erreur est survenue lors de la mise à jour.');
+        return redirect()->back()->withInput();
+    }
 }
 
 public function liaisons()

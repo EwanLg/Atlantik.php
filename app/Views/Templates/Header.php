@@ -16,7 +16,7 @@
         $session = session();
         if ($session->get('connecté') === true): ?>
             <!-- Si l'utilisateur est connecté, afficher "Mon compte" et "Se déconnecter" -->
-            <a class="navbar-brand" href="<?= base_url('mon-compte') ?>">Mon compte</a>
+            <a class="navbar-brand" href="<?= base_url('moncompte') ?>">Mon compte</a>
             
             <!-- Bouton Se déconnecter -->
             <a class="navbar-brand" href="<?= base_url('sedeconnecter') ?>">Se déconnecter</a>
