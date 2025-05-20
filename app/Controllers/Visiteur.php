@@ -313,22 +313,92 @@ public function modifiermoncompte()
 }
 
 public function liaisons()
-    {
-        $data['TitreDeLaPage'] = 'Atlantik - Liaisons';
+{
+    $db = \Config\Database::connect();
 
-        return view('Templates/Header', $data)
-                .view('Visiteur/vue_liaisons')
-                .view('Templates/Footer');
+    $builder = $db->table('liaison');
+    $builder->select('secteur.NOM as nomSecteur, liaison.NOLIAISON, liaison.DISTANCE, 
+                      portDepart.NOM as portDepart, portArrivee.NOM as portArrivee');
+    $builder->join('secteur', 'secteur.NOSECTEUR = liaison.NOSECTEUR');
+    $builder->join('port as portDepart', 'portDepart.NOPORT = liaison.NOPORT_DEPART');
+    $builder->join('port as portArrivee', 'portArrivee.NOPORT = liaison.NOPORT_ARRIVEE');
+    $builder->orderBy('secteur.NOM');
+    $query = $builder->get();
+
+    $data['TitreDeLaPage'] = 'Atlantik - Liaisons';
+    $data['liaisons'] = $query->getResult();
+
+    return view('Templates/Header', $data)
+            .view('Visiteur/vue_liaisons', $data)
+            .view('Templates/Footer');
+}
+
+public function tarifs($noliaison)
+{
+    $db = \Config\Database::connect();
+
+    // Retrieve liaison information
+    $liaison = $db->query("
+        SELECT l.NOLIAISON, pd.NOM AS PORT_DEPART, pa.NOM AS PORT_ARRIVEE
+        FROM liaison l
+        JOIN port pd ON l.NOPORT_DEPART = pd.NOPORT
+        JOIN port pa ON l.NOPORT_ARRIVEE = pa.NOPORT
+        WHERE l.NOLIAISON = ?
+    ", [$noliaison])->getRow();
+
+    if (!$liaison) {
+        throw new \CodeIgniter\Exceptions\PageNotFoundException('Liaison not found');
     }
 
-    public function tarifs()
-    {
-        $data['TitreDeLaPage'] = 'Atlantik - Tarifs';
+    // Retrieve current and upcoming periods
+    $today = date('Y-m-d');
+    $periodes = $db->query("
+        SELECT NOPERIODE, DATEDEBUT, DATEFIN
+        FROM periode
+        WHERE DATEFIN >= ?
+        ORDER BY DATEDEBUT ASC
+    ", [$today])->getResult();
 
-        return view('Templates/Header', $data)
-                .view('Visiteur/vue_tarifs')
-                .view('Templates/Footer');
+    // Retrieve tariffs for the specified liaison
+    $tarifData = $db->query("
+        SELECT t.LETTRECATEGORIE, t.NOTYPE, t.LIBELLE AS LIBELLETYPE,
+               tr.NOPERIODE, tr.TARIF
+        FROM tarifer tr
+        JOIN type t ON tr.LETTRECATEGORIE = t.LETTRECATEGORIE AND tr.NOTYPE = t.NOTYPE
+        WHERE tr.NOLIAISON = ?
+        ORDER BY t.LETTRECATEGORIE, t.NOTYPE
+    ", [$noliaison])->getResult();
+
+    // Organize tariffs by type
+    $tarifs = [];
+    foreach ($tarifData as $row) {
+        $key = $row->LETTRECATEGORIE . '-' . $row->NOTYPE;
+        if (!isset($tarifs[$key])) {
+            $tarifs[$key] = (object)[
+                'CATEGORIE' => $row->LETTRECATEGORIE,
+                'CODETYPE' => $row->NOTYPE,
+                'LIBELLETYPE' => $row->LIBELLETYPE,
+                'prix' => [],
+            ];
+        }
+        $tarifs[$key]->prix[] = (object)[
+            'NOPERIODE' => $row->NOPERIODE,
+            'tarif' => $row->TARIF
+        ];
     }
+
+    // Convert tariffs to a list
+    $tarifs = array_values($tarifs);
+
+    $data['TitreDeLaPage'] = 'Atlantik - Tarifs';
+    // Pass data to the view
+    return view('Templates/Header', $data)
+            .view('visiteur/vue_tarifs', [
+        'liaison' => $liaison,
+        'periodes' => $periodes,
+        'tarifs' => $tarifs
+    ]).view('Templates/Footer');;
+}
 
     public function horaires()
     {
