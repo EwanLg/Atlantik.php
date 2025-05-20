@@ -34,7 +34,7 @@
                 <li class="nav-item"><a class="nav-link" href="<?= base_url('tarifs') ?>">Tarifs</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?= base_url('horaires') ?>">Horaires</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?= base_url('reserver') ?>">Réserver</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?= base_url('confirmation') ?>">Compte-rendu</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?= base_url('compterendu') ?>">Compte-rendu</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?= base_url('historique') ?>">Historique</a></li>
             </ul>
         </div>

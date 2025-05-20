@@ -5,7 +5,14 @@ use App\Models\ModeleUtilisateur;
 
 class Visiteur extends BaseController
 {
-    
+    public function accueil()
+    {
+        $data['TitreDeLaPage'] = 'Atlantik - Accueil';
+
+        return view('Templates/Header', $data)
+                .view('Visiteur/vue_accueil')
+                .view('Templates/Footer');
+    }
 
     public function seconnecter()
     {
@@ -314,4 +321,48 @@ public function liaisons()
                 .view('Templates/Footer');
     }
 
+    public function tarifs()
+    {
+        $data['TitreDeLaPage'] = 'Atlantik - Tarifs';
+
+        return view('Templates/Header', $data)
+                .view('Visiteur/vue_tarifs')
+                .view('Templates/Footer');
+    }
+
+    public function horaires()
+    {
+        $data['TitreDeLaPage'] = 'Atlantik - Horaires';
+
+        return view('Templates/Header', $data)
+                .view('Visiteur/vue_horaires')
+                .view('Templates/Footer');
+    }
+
+    public function reserver()
+    {
+        $data['TitreDeLaPage'] = 'Atlantik - Réservation';
+
+        return view('Templates/Header', $data)
+                .view('Visiteur/vue_reserver')
+                .view('Templates/Footer');
+    }
+
+    public function compterendu()
+    {
+        $data['TitreDeLaPage'] = 'Atlantik - Compte-Rendu';
+
+        return view('Templates/Header', $data)
+                .view('Visiteur/vue_compterendu')
+                .view('Templates/Footer');
+    }
+
+    public function historique()
+    {
+        $data['TitreDeLaPage'] = 'Atlantik - Historique';
+
+        return view('Templates/Header', $data)
+                .view('Visiteur/vue_historiquereservation')
+                .view('Templates/Footer');
+    }
 }
