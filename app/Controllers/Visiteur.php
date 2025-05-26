@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 use App\Models\ModeleUtilisateur;
+use App\Models\ModeleHoraires;
 
 class Visiteur extends BaseController
 {
@@ -353,22 +354,23 @@ public function tarifs($noliaison)
     // Retrieve current and upcoming periods
     $today = date('Y-m-d');
     $periodes = $db->query("
-        SELECT NOPERIODE, DATEDEBUT, DATEFIN
-        FROM periode
-        WHERE DATEFIN >= ?
-        ORDER BY DATEDEBUT ASC
-    ", [$today])->getResult();
+    SELECT NOPERIODE, DATEDEBUT, DATEFIN
+    FROM periode
+    ORDER BY DATEDEBUT DESC
+    LIMIT 4
+")->getResult();
 
     // Retrieve tariffs for the specified liaison
     $tarifData = $db->query("
         SELECT t.LETTRECATEGORIE, t.NOTYPE, t.LIBELLE AS LIBELLETYPE,
-               tr.NOPERIODE, tr.TARIF
-        FROM tarifer tr
-        JOIN type t ON tr.LETTRECATEGORIE = t.LETTRECATEGORIE AND tr.NOTYPE = t.NOTYPE
-        WHERE tr.NOLIAISON = ?
-        ORDER BY t.LETTRECATEGORIE, t.NOTYPE
+       tr.NOPERIODE, tr.TARIF
+FROM type t
+LEFT JOIN tarifer tr
+  ON tr.LETTRECATEGORIE = t.LETTRECATEGORIE
+  AND tr.NOTYPE = t.NOTYPE
+  AND tr.NOLIAISON = ?
+ORDER BY t.LETTRECATEGORIE, t.NOTYPE;
     ", [$noliaison])->getResult();
-
     // Organize tariffs by type
     $tarifs = [];
     foreach ($tarifData as $row) {
@@ -389,24 +391,83 @@ public function tarifs($noliaison)
 
     // Convert tariffs to a list
     $tarifs = array_values($tarifs);
-
     $data['TitreDeLaPage'] = 'Atlantik - Tarifs';
-    // Pass data to the view
-    return view('Templates/Header', $data)
-            .view('visiteur/vue_tarifs', [
+return view('Templates/Header', $data)
+    .view('Visiteur/vue_tarifs', [
         'liaison' => $liaison,
         'periodes' => $periodes,
         'tarifs' => $tarifs
-    ]).view('Templates/Footer');;
+    ])
+    .view('Templates/Footer');
 }
 
-    public function horaires()
+public function horaires()
     {
+        $model = new ModeleHoraires();
+
         $data['TitreDeLaPage'] = 'Atlantik - Horaires';
 
+        // 1. Récupérer tous les secteurs pour affichage à gauche
+        $data['lesSecteurs'] = $model->getLesSecteurs();
+
+        // 2. Récupérer le secteur sélectionné (via lien), sinon prendre le 1er
+        $secteur = $this->request->getGet('secteur');
+        if (!$secteur && !empty($data['secteurs'])) {
+            $secteur = $data['secteurs'][0]->NOSECTEUR;
+        }
+        $data['secteurActuel'] = $secteur;
+
+        // 3. Récupérer les liaisons du secteur sélectionné
+        $data['liaisons'] = $model->getLesLiaisonsParSecteur($secteur);
+
+        // 4. Si formulaire soumis pour afficher les traversées
+        if ($this->request->getMethod() == 'post') {
+            $noLiaison = $this->request->getPost('liaison');
+            $date = $this->request->getPost('date');
+
+            // a. Catégories (A/B/C...)
+            $categories = $model->getLesCategories();
+
+            // b. Traversées du jour pour cette liaison
+            $traversees = $model->getLesTraverseesBateaux($noLiaison, $date);
+
+            // c. Construction tableau traversées + places dispo
+            $tableau = [];
+            foreach ($traversees as $t) {
+                $ligne = [
+                    'NOTRAVERSEE' => $t->NOTRAVERSEE,
+                    'HEURE' => date('H:i', strtotime($t->DATEHEUREDEPART)),
+                    'BATEAU' => $t->NOMBATEAU,
+                    'places' => []
+                ];
+
+                foreach ($categories as $cat) {
+                    $capacite = $model->getCapaciteMaximale($t->NOTRAVERSEE, $cat->LETTRECATEGORIE);
+                    $reserve = $model->getQuantiteEnregistree($t->NOTRAVERSEE, $cat->LETTRECATEGORIE);
+                    $placesDispo = $capacite - $reserve;
+                    $ligne['places'][$cat->LETTRECATEGORIE] = $placesDispo;
+                }
+
+                $tableau[] = $ligne;
+            }
+
+            $data['categories'] = $categories;
+            $data['tableauTraversees'] = $tableau;
+            $data['dateChoisie'] = $date;
+            $data['liaisonChoisie'] = $noLiaison;
+            $data['selectedSecteur'] = $secteur;
+            $data['selectedLiaison'] = $noLiaison ?? '';
+            $data['selectedDate'] = $date ?? '';
+            $data['traversees'] = $traversees ?? [];
+            $data['lesSecteurs'] = $data['secteurs'];
+        }
+
+        $data['selectedDate'] = $data['dateChoisie'] ?? '';
+$data['selectedLiaison'] = $data['liaisonChoisie'] ?? '';
+
         return view('Templates/Header', $data)
-                .view('Visiteur/vue_horaires')
-                .view('Templates/Footer');
+            .view('Visiteur/vue_horaires', $data)
+            .view('Templates/Footer');
     }
 
     public function reserver()
