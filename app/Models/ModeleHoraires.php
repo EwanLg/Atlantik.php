@@ -13,11 +13,6 @@ class ModeleHoraires extends Model
         $this->db = \Config\Database::connect();
     }
 
-    public function getLesSecteurs()
-    {
-        return $this->db->query("SELECT * FROM secteur ORDER BY NOM")->getResult();
-    }
-
     public function getLesLiaisonsParSecteur($noSecteur)
     {
         return $this->db->query("
@@ -63,7 +58,7 @@ class ModeleHoraires extends Model
             FROM enregistrer e
             JOIN reservation r ON e.NORESERVATION = r.NORESERVATION
             WHERE r.NOTRAVERSEE = ?
-              AND e.LETTECATEGORIE = ?
+              AND e.LETTRECATEGORIE = ?
         ", [$noTraversee, $lettreCategorie])->getRow();
 
         return $result && $result->total !== null ? (int)$result->total : 0;
@@ -76,7 +71,7 @@ class ModeleHoraires extends Model
             FROM contenir c
             JOIN traversee t ON c.NOBATEAU = t.NOBATEAU
             WHERE t.NOTRAVERSEE = ?
-              AND c.LETTECATEGORIE = ?
+              AND c.LETTRECATEGORIE = ?
         ", [$noTraversee, $lettreCategorie])->getRow();
 
         return $result ? (int)$result->CAPACITEMAX : 0;

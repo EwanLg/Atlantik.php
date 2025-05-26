@@ -46,8 +46,8 @@
         </div>
 
         <div class="col-md-6 mb-3">
-            <label for="txtMel" class="form-label">E-mail</label>
-            <input type="email" class="form-control" id="txtMel" name="txtMel" value="<?= set_value('txtMel'); ?>" required>
+            <label for="txtMEL" class="form-label">E-mail</label>
+            <input type="email" class="form-control" id="txtMEL" name="txtMEL" value="<?= set_value('txtMEL'); ?>" required>
         </div>
     </div>
 
