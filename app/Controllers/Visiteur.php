@@ -4,6 +4,8 @@ namespace App\Controllers;
 use App\Models\ModeleUtilisateur;
 use App\Models\ModeleHoraires;
 use App\Models\ModeleSecteur;
+use App\Models\ModeleLiaisons;
+use App\Models\ModeleTarifs;
 
 class Visiteur extends BaseController
 {
@@ -316,63 +318,30 @@ public function modifiermoncompte()
 
 public function liaisons()
 {
-    $db = \Config\Database::connect();
-
-    $builder = $db->table('liaison');
-    $builder->select('secteur.NOM as nomSecteur, liaison.NOLIAISON, liaison.DISTANCE, 
-                      portDepart.NOM as portDepart, portArrivee.NOM as portArrivee');
-    $builder->join('secteur', 'secteur.NOSECTEUR = liaison.NOSECTEUR');
-    $builder->join('port as portDepart', 'portDepart.NOPORT = liaison.NOPORT_DEPART');
-    $builder->join('port as portArrivee', 'portArrivee.NOPORT = liaison.NOPORT_ARRIVEE');
-    $builder->orderBy('secteur.NOM');
-    $query = $builder->get();
+    $modelliaison = new LiaisonModel();
+    $liaisons = $modelliaison->getToutesLesLiaisonsAvecInfos();
 
     $data['TitreDeLaPage'] = 'Atlantik - Liaisons';
-    $data['liaisons'] = $query->getResult();
+    $data['liaisons'] = $liaisons;
 
     return view('Templates/Header', $data)
-            .view('Visiteur/vue_liaisons', $data)
-            .view('Templates/Footer');
+         . view('Visiteur/vue_liaisons', $data)
+         . view('Templates/Footer');
 }
 
 public function tarifs($noliaison)
 {
-    $db = \Config\Database::connect();
+    $modeltarifs = new ModeleTarifs();
 
-    // Retrieve liaison information
-    $liaison = $db->query("
-        SELECT l.NOLIAISON, pd.NOM AS PORT_DEPART, pa.NOM AS PORT_ARRIVEE
-        FROM liaison l
-        JOIN port pd ON l.NOPORT_DEPART = pd.NOPORT
-        JOIN port pa ON l.NOPORT_ARRIVEE = pa.NOPORT
-        WHERE l.NOLIAISON = ?
-    ", [$noliaison])->getRow();
-
+    $liaison = $modeltarifs->getLiaison($noliaison);
     if (!$liaison) {
         throw new \CodeIgniter\Exceptions\PageNotFoundException('Liaison not found');
     }
 
-    // Retrieve current and upcoming periods
-    $today = date('Y-m-d');
-    $periodes = $db->query("
-    SELECT NOPERIODE, DATEDEBUT, DATEFIN
-    FROM periode
-    ORDER BY DATEDEBUT DESC
-    LIMIT 2
-")->getResult();
+    $periodes = $modeltarifs->getPeriodes();
+    $tarifData = $modeltarifs->getTarifs($noliaison);
 
-    // Retrieve tariffs for the specified liaison
-    $tarifData = $db->query("
-        SELECT t.LETTRECATEGORIE, t.NOTYPE, t.LIBELLE AS LIBELLETYPE,
-       tr.NOPERIODE, tr.TARIF
-FROM type t
-LEFT JOIN tarifer tr
-  ON tr.LETTRECATEGORIE = t.LETTRECATEGORIE
-  AND tr.NOTYPE = t.NOTYPE
-  AND tr.NOLIAISON = ?
-ORDER BY t.LETTRECATEGORIE, t.NOTYPE;
-    ", [$noliaison])->getResult();
-    // Organize tariffs by type
+    // Organiser les tarifs par type
     $tarifs = [];
     foreach ($tarifData as $row) {
         $key = $row->LETTRECATEGORIE . '-' . $row->NOTYPE;
@@ -390,16 +359,15 @@ ORDER BY t.LETTRECATEGORIE, t.NOTYPE;
         ];
     }
 
-    // Convert tariffs to a list
-    $tarifs = array_values($tarifs);
     $data['TitreDeLaPage'] = 'Atlantik - Tarifs';
-return view('Templates/Header', $data)
-    .view('Visiteur/vue_tarifs', [
-        'liaison' => $liaison,
-        'periodes' => $periodes,
-        'tarifs' => $tarifs
-    ])
-    .view('Templates/Footer');
+
+    return view('Templates/Header', $data)
+        . view('Visiteur/vue_tarifs', [
+            'liaison' => $liaison,
+            'periodes' => $periodes,
+            'tarifs' => array_values($tarifs)
+        ])
+        . view('Templates/Footer');
 }
 
 public function horaires()
