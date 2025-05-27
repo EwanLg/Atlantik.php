@@ -21,6 +21,7 @@ class ModeleLiaisons extends Model
         $builder->join('port as portDepart', 'portDepart.NOPORT = liaison.NOPORT_DEPART');
         $builder->join('port as portArrivee', 'portArrivee.NOPORT = liaison.NOPORT_ARRIVEE');
         $builder->orderBy('secteur.NOM');
+        $builder->orderBy('liaison.NOLIAISON');
 
         return $builder->get()->getResult();
     }

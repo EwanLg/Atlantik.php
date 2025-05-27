@@ -27,10 +27,12 @@ class ModeleTarifs extends Model
 
     public function getPeriodes()
     {
+        $today = date('Y-m-d');
         return $this->db->table('periode')
             ->select('NOPERIODE, DATEDEBUT, DATEFIN')
+            ->where('DATEFIN >=', $today)
             ->orderBy('DATEDEBUT', 'DESC')
-            ->limit(2)
+            ->limit(4)
             ->get()
             ->getResult();
     }

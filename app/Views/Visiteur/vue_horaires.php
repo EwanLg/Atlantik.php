@@ -71,7 +71,7 @@
                                     <?php foreach ($traversees as $traversee): ?>
                                         <tr>
                                             <td>
-                                                <a href="<?= site_url('reserver/' . $traversee->NOTRAVERSEE) ?>">
+                                                <a href="<?= site_url('reservation/' . $traversee->NOTRAVERSEE) ?>">
                                                     <?= $traversee->NOTRAVERSEE ?>
                                                 </a>
                                             </td>

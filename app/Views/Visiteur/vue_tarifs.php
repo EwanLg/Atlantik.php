@@ -8,13 +8,32 @@
         <table class="table table-bordered text-center align-middle">
         <thead class="table-primary">
     <tr>
-        <th>Catégorie</th>
-        <th>Type</th>
-        <?php foreach ($periodes as $periode) : ?>
-            <th>
-                Période <?= $periode->NOPERIODE ?><br>
-                <small><?= date('d/m/Y', strtotime($periode->DATEDEBUT)) ?> - <?= date('d/m/Y', strtotime($periode->DATEFIN)) ?></small>
-            </th>
+        <th class="align-middle">Catégorie</th>
+        <th class="align-middle">Type</th>
+        <?php 
+            $today = date('Y-m-d');
+            $periodesReverses = array_reverse($periodes);
+            foreach ($periodesReverses as $periode) :
+                $debut = date('Y-m-d', strtotime($periode->DATEDEBUT));
+                $fin = date('Y-m-d', strtotime($periode->DATEFIN));
+
+                $isCurrent = ($today >= $debut && $today <= $fin);
+                $isFuture = ($today < $debut);
+        ?>
+            <th class="text-center align-middle">
+    <div>
+        <strong>
+            Période <?= $periode->NOPERIODE ?>
+            <?php if ($isCurrent): ?>
+                <span class="badge bg-success ms-2">en cours</span>
+            <?php elseif ($isFuture): ?>
+                <span class="badge bg-danger ms-2">à venir</span>
+            <?php endif; ?>
+        </strong><br>
+        <small><?= date('d/m/Y', strtotime($periode->DATEDEBUT)) ?> - <?= date('d/m/Y', strtotime($periode->DATEFIN)) ?></small>
+    </div>
+</th>
+
         <?php endforeach; ?>
     </tr>
 </thead>
@@ -24,7 +43,7 @@
         <tr>
             <td><?= $row->CATEGORIE ?></td>
             <td><?= $row->LIBELLETYPE ?></td>
-            <?php foreach ($periodes as $periode): ?>
+            <?php foreach (array_reverse($periodes) as $periode) : ?>
                 <?php
                     // Chercher un tarif pour cette période
                     $tarifTrouve = '-';

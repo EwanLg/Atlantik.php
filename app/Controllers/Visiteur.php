@@ -102,33 +102,24 @@ class Visiteur extends BaseController
  
 
         if ($utilisateurRetourne != null) {
-
-            /* MEL et mot de passe OK : MEL est stocké en session */
-
             $MEL = $utilisateurRetourne->MEL;
             $NOM = $utilisateurRetourne->NOM;
             $PRENOM = $utilisateurRetourne->PRENOM;
             $NOCLIENT = $utilisateurRetourne->NOCLIENT;
-
+        
             $session->set('MEL', $MEL);
             $session->set('NOM', $NOM);
             $session->set('PRENOM', $PRENOM);
             $session->set('NOCLIENT', $NOCLIENT);
-
-            $data['MEL'] = $MEL;
-            $data['NOM'] = $NOM;
-            $data['PRENOM'] = $PRENOM;
-            $data['TitreDeLaPage'] = "Accueil - Atlantik";
-
             $session->set('connecté', true);
-
-            return view('Templates/Header', $data)
-
-            . view('Visiteur/vue_connexionreussie')
-
-            . view('Visiteur/vue_accueil')
-
-            . view('Templates/Footer');
+        
+            $redirectUrl = $session->get('redirect_after_login');
+            if ($redirectUrl) {
+                $session->remove('redirect_after_login');
+                return redirect()->to($redirectUrl);
+            } else {
+                return redirect()->to('/');
+            }
 
         } else {
 
@@ -163,8 +154,8 @@ class Visiteur extends BaseController
 
     } // Fin seDeconnecter
 
-    public function register()
-{
+    public function register(){
+        
     helper(['form', 'url']);
 
     if ($this->request->is('post')) {
@@ -318,7 +309,7 @@ public function modifiermoncompte()
 
 public function liaisons()
 {
-    $modelliaison = new LiaisonModel();
+    $modelliaison = new ModeleLiaisons();
     $liaisons = $modelliaison->getToutesLesLiaisonsAvecInfos();
 
     $data['TitreDeLaPage'] = 'Atlantik - Liaisons';
@@ -334,9 +325,6 @@ public function tarifs($noliaison)
     $modeltarifs = new ModeleTarifs();
 
     $liaison = $modeltarifs->getLiaison($noliaison);
-    if (!$liaison) {
-        throw new \CodeIgniter\Exceptions\PageNotFoundException('Liaison not found');
-    }
 
     $periodes = $modeltarifs->getPeriodes();
     $tarifData = $modeltarifs->getTarifs($noliaison);
@@ -440,12 +428,13 @@ public function horaires()
         . view('Templates/Footer');
 }
 
-    public function reserver()
+    public function reservation($notraversee)
     {
         $data['TitreDeLaPage'] = 'Atlantik - Réservation';
+        $data['notraversee'] = $notraversee;
 
         return view('Templates/Header', $data)
-                .view('Visiteur/vue_reserver')
+                .view('Visiteur/vue_reservations', $data)
                 .view('Templates/Footer');
     }
 

@@ -51,9 +51,13 @@ class FiltreUtilisateur implements FilterInterface
 
     {
 
+        $session = session();
+
         if(session()->get('connecté')!=TRUE) {
 
-            /* si profil n'est pas SuperAdministrateur on redirige vers le formulaire de connexion */
+            if (! $session->has('redirect_after_login')) {
+                $session->set('redirect_after_login', current_url());
+            }
 
             return redirect()->to(base_url('seconnecter'));
 
