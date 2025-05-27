@@ -14,7 +14,7 @@ class ModeleLiaisons extends Model
 
     public function getToutesLesLiaisonsAvecInfos()
     {
-        $builder = $this->db->table('liaison');
+/*        $builder = $this->db->table('liaison');
         $builder->select('secteur.NOM as nomSecteur, liaison.NOLIAISON, liaison.DISTANCE, 
                           portDepart.NOM as portDepart, portArrivee.NOM as portArrivee');
         $builder->join('secteur', 'secteur.NOSECTEUR = liaison.NOSECTEUR');
@@ -22,7 +22,20 @@ class ModeleLiaisons extends Model
         $builder->join('port as portArrivee', 'portArrivee.NOPORT = liaison.NOPORT_ARRIVEE');
         $builder->orderBy('secteur.NOM');
         $builder->orderBy('liaison.NOLIAISON');
+              return $builder->get()->getResult();
+              */
+        
+        $res = $this->join('secteur', 'secteur.NOSECTEUR = liaison.NOSECTEUR')
+        ->join('port as portDepart', 'portDepart.NOPORT = liaison.NOPORT_DEPART')
+        ->join('port as portArrivee', 'portArrivee.NOPORT = liaison.NOPORT_ARRIVEE')
+        ->orderBy('secteur.NOM')
+        ->orderBy('liaison.NOLIAISON')
+        ->select('secteur.NOM as nomSecteur, liaison.NOLIAISON, liaison.DISTANCE, 
+                          portDepart.NOM as portDepart, portArrivee.NOM as portArrivee')
+        ;
 
-        return $builder->get()->getResult();
+        return $res->get()->getResult();
+
+
     }
 }

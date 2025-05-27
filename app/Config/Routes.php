@@ -22,5 +22,6 @@ $routes->match(['get', 'post'], 'liaisons', 'Visiteur::liaisons');
 $routes->match(['get', 'post'], 'tarifs/(:num)', 'Visiteur::tarifs/$1');
 $routes->match(['get', 'post'], 'horaires', 'Visiteur::horaires');
 $routes->match(['get', 'post'], 'reservation/(:num)', 'Visiteur::reservation/$1', ["filter"=> "filtreuser"]);
+$routes->match(['get', 'post'], 'validereservation', 'Visiteur::validereservation', ["filter"=> "filtreuser"]);
 $routes->match(['get', 'post'], 'compterendu', 'Visiteur::compterendu', ["filter"=> "filtreuser"]);
 $routes->match(['get', 'post'], 'historique', 'Visiteur::historique', ["filter"=> "filtreuser"]);

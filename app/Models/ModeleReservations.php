@@ -12,7 +12,7 @@ class ModeleReservations extends Model
     protected $allowedFields = ['NORESERVATION', 'NOTRAVERSEE', 'NOCLIENT', 'DATEHEURE', 'MONTANTTOTAL', 'PAYE'];
 
     public function getHistoriqueReservationsParClientPaginated($noClient, $perPage = 10)
-{
+    {
     return $this->db->table('reservation r')
         ->select('r.NORESERVATION, r.DATEHEURE AS DATERESE, 
                   p1.NOM AS PORT_DEPART, p2.NOM AS PORT_ARRIVEE, 
@@ -23,7 +23,9 @@ class ModeleReservations extends Model
         ->join('port p2', 'l.NOPORT_ARRIVEE = p2.NOPORT')
         ->where('r.NOCLIENT', $noClient)
         ->orderBy('r.DATEHEURE', 'DESC');
-}
-
-
+    }
+    public function creerReservation($data)
+    {
+        return $this->insert($data);
+    }
 }

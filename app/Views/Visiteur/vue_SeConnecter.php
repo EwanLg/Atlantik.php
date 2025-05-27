@@ -21,7 +21,3 @@
 
     <button type="submit" class="btn btn-primary">Se connecter</button>
 </form>
-
-<br>
-<br>
-<a href="<?= base_url('register') ?>" class="btn btn-primary rounded-pill px-4 py-2 shadow">Créer un compte</a>

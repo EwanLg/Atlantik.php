@@ -37,11 +37,8 @@ class Visiteur extends BaseController
         if (!$this->request->is('post')) {
 
             return view('Templates/Header', $data) // Renvoi formulaire de connexion
-
             . view('Visiteur/vue_seconnecter')
-
             . view('Templates/Footer');
-
         }
 
         /* SI FORMULAIRE NON POSTE, LE CODE QUI SUIT N'EST PAS EXECUTE */
@@ -51,10 +48,8 @@ class Visiteur extends BaseController
         /* VALIDATION DU FORMULAIRE */
 
         $reglesValidation = [ // Régles de validation
-
-            'txtMEL' => 'required',
-
-            'txtMotDePasse' => 'required',
+           'txtMEL' => 'required',
+           'txtMotDePasse' => 'required',
 
         ];
 
@@ -315,7 +310,7 @@ public function liaisons()
 {
     $modelliaison = new ModeleLiaisons();
     $liaisons = $modelliaison->getToutesLesLiaisonsAvecInfos();
-
+ 
     $data['TitreDeLaPage'] = 'Atlantik - Liaisons';
     $data['liaisons'] = $liaisons;
 
@@ -432,44 +427,119 @@ public function horaires()
         . view('Templates/Footer');
 }
 
-    public function reservation($notraversee)
-    {
-        $data['TitreDeLaPage'] = 'Atlantik - Réservation';
-        $data['notraversee'] = $notraversee;
+public function reservation($notraversee)
+{
+    $session = session();
+    $mel = $session->get('MEL');
 
-        return view('Templates/Header', $data)
-                .view('Visiteur/vue_reservations', $data)
-                .view('Templates/Footer');
+    $modeleUtilisateur = new ModeleUtilisateur();
+    $utilisateur = $modeleUtilisateur->where(['MEL' => $mel])->first();
+
+    $data['utilisateur'] = $utilisateur;
+
+    $data['TitreDeLaPage'] = 'Atlantik - Réservation';
+    $data['notraversee'] = $notraversee;
+
+    // Récupération des infos client depuis la session
+    $data['nom'] = $session->get('nom');
+    $data['adresse'] = $session->get('adresse');
+    $data['cp'] = $session->get('cp');
+    $data['ville'] = $session->get('ville');
+
+    return view('Templates/Header', $data)
+        . view('Visiteur/vue_reservations', $data)
+        . view('Templates/Footer');
+}
+
+public function validereservation()
+{
+    $reservationModel = new ModeleReservations();
+    $session = session();
+
+    $quantites = $this->request->getPost('quantite');
+    $tarifs = $this->request->getPost('tarif');
+    $types = $this->request->getPost('type');
+    $notraversee = $this->request->getPost('notraversee');
+
+    $total = 0;
+    for ($i = 0; $i < count($quantites); $i++) {
+        $total += $quantites[$i] * $tarifs[$i];
     }
+
+    $data = [
+        'NOTRAVERSEE' => $notraversee,
+        'NOCLIENT' => $session->get('NOCLIENT'), // ID client en session
+        'DATEHEURE' => date('Y-m-d H:i:s'),
+        'MONTANTTOTAL' => $total,
+        'PAYE' => 0,
+    ];
+
+    $reservationModel->insert($data);
+
+    $session->set([
+        'resume' => [], // On construit le résumé
+        'montant' => $total,
+        'date_reservation' => date('Y-m-d H:i:s'),
+        'notraversee' => $notraversee
+    ]);
+    
+    $resume = [];
+    for ($i = 0; $i < count($quantites); $i++) {
+    if ((int)$quantites[$i] > 0) {
+        $resume[] = [
+            'type' => $types[$i],
+            'quantite' => (int)$quantites[$i],
+            'tarif' => (float)$tarifs[$i],
+        ];
+        }
+    }
+
+    $session->set('resume', $resume);
+
+    return redirect()->to('compterendu');
+}
 
     public function compterendu()
-    {
-        $data['TitreDeLaPage'] = 'Atlantik - Compte-Rendu';
+{
+    $session = session();
+    $modeleUtilisateur = new ModeleUtilisateur();
+    $mel = $session->get('MEL');
 
-        return view('Templates/Header', $data)
-                .view('Visiteur/vue_compterendu')
-                .view('Templates/Footer');
-    }
+    $utilisateur = $modeleUtilisateur->where('MEL', $mel)->first();
+
+    $data = [
+        'TitreDeLaPage' => 'Atlantik - Compte-Rendu',
+        'utilisateur' => $utilisateur,
+        'notraversee' => $session->get('notraversee'),
+        'montant' => $session->get('montant'),
+        'date' => $session->get('date_reservation'),
+        'resume' => $session->get('resume'),
+        'portDepart' => 'Quiberon', // À rendre dynamique si tu veux
+        'portArrivee' => 'Le Palais', // Idem
+    ];
+
+    return view('Templates/Header', $data)
+        . view('Visiteur/vue_compterendu', $data)
+        . view('Templates/Footer');
+
+        $session->remove(['resume', 'montant', 'date_reservation', 'notraversee']);
+
+}
+
 
     public function historique()
 {
     $session = session();
     $noClient = $session->get('NOCLIENT');
 
-    if (!$noClient) {
-        return redirect()->to('/login');
-    }
+    $model = new ModeleReservations();
 
-    $model = new \App\Models\ModeleReservations();
-
-    // Récupère toutes les réservations du client
     $toutesReservations = $model->getHistoriqueReservationsParClientPaginated($noClient)->get()->getResultArray();
 
-    // Pagination manuelle
-    $perPage = 5;
+    $parPage = 5;
     $page = (int) ($this->request->getGet('page') ?? 1);
     $total = count($toutesReservations);
-    $reservations = array_slice($toutesReservations, ($page - 1) * $perPage, $perPage);
+    $reservations = array_slice($toutesReservations, ($page - 1) * $parPage, $parPage);
 
     $data = [
         'TitreDeLaPage' => 'Atlantik - Historique',
@@ -477,7 +547,7 @@ public function horaires()
         'pager' => [
             'total' => $total,
             'page' => $page,
-            'perPage' => $perPage
+            'parPage' => $parPage
         ]
     ];
 

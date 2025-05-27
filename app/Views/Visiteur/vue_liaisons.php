@@ -1,7 +1,7 @@
-<h2><?= esc($TitreDeLaPage) ?></h2>
-
-<table border="1" cellpadding="6" cellspacing="0">
-    <thead>
+<div class="container my-4">
+<h2 class="text-center mb-4 my-4"><?= esc($TitreDeLaPage) ?></h2>
+<table class="table table-bordered text-center align-middle">
+    <thead class="table-primary">
         <tr>
             <th>Secteur</th>
             <th>Code Liaison</th>
@@ -33,3 +33,4 @@
         <?php endforeach; ?>
     </tbody>
 </table>
+                </div>

@@ -36,7 +36,7 @@
         <nav>
             <ul class="pagination justify-content-center">
                 <?php
-                $totalPages = ceil($pager['total'] / $pager['perPage']);
+                $totalPages = ceil($pager['total'] / $pager['parPage']);
                 for ($i = 1; $i <= $totalPages; $i++): ?>
                     <li class="page-item <?= ($i == $pager['page']) ? 'active' : '' ?>">
                         <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
