@@ -35,6 +35,10 @@
             </label>
             <input type="text" id="telephonemobile" name="telephonemobile" class="form-control" value="<?= esc($utilisateur->TELEPHONEMOBILE ?? '') ?>">
         </div>
+        <div class="form-group">
+            <label>Mot de passe</label>
+            <input type="text" name="motdepasse" class="form-control" value="<?= esc($utilisateur->MOTDEPASSE ?? '') ?>">
+        </div>
 
         <div class="mt-4">
             <button type="submit" class="btn btn-success">Enregistrer les modifications</button>
@@ -59,7 +63,7 @@
         }
 
         checkbox.addEventListener('change', update);
-        update();
+        update();admin
     }
 
     toggleInput('active_fixe', 'telephonefixe');

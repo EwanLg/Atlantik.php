@@ -6,6 +6,7 @@ use App\Models\ModeleHoraires;
 use App\Models\ModeleSecteur;
 use App\Models\ModeleLiaisons;
 use App\Models\ModeleTarifs;
+use App\Models\ModeleReservations;
 
 class Visiteur extends BaseController
 {
@@ -162,26 +163,26 @@ class Visiteur extends BaseController
 
         // Règles de validation
         $reglesValidation = [
-           /* 'txtNom'            => 'required',
-            'txtPrenom'         => 'required',
-            'txtAdresse'        => 'required',
-            'txtCodepostal'     => 'required|alpha_numeric',
-            'txtVille'          => 'required',
-            'txtTelephonefixe'  => 'required|alpha_numeric',
-            'txtTelephonemobile'=> 'required|alpha_numeric',
-            'txtMEL'            => 'required',
-            'txtMotdepasse'     => 'required',*/
+            'txtNom'            => 'required|alpha_space|max_length[25]',
+            'txtPrenom'         => 'required|alpha_space|max_length[25]',
+            'txtAdresse'        => 'required|string|max_length[50]',
+            'txtCodepostal'     => 'required|numeric|exact_length[5]',
+            'txtVille'          => 'required|alpha_space|max_length[50]',
+            'txtTelephonefixe'  => 'permit_empty|numeric|exact_length[10]',
+            'txtTelephonemobile'=> 'permit_empty|numeric|exact_length[10]',
+            'txtMEL'            => 'required|valid_email',
+            'txtMotdepasse'     => 'required|min_length[5]',
         ];
 
         // Validation du formulaire
-       /* if (!$this->validate($reglesValidation)) {
+        if (!$this->validate($reglesValidation)) {
             // Formulaire non validé, afficher les erreurs et rediriger
             $data['TitreDeLaPage'] = "Formulaire invalide";
 
             return view('Templates/Header', $data)
                 . view('Visiteur/vue_register')  // Rediriger vers le formulaire avec les erreurs
                 . view('Templates/Footer');
-        }*/
+        }
 
         // Si le formulaire est validé, préparer les données pour insertion
         $data = [
@@ -192,7 +193,7 @@ class Visiteur extends BaseController
             'ville'           => $this->request->getPost('txtVille'),
             'telephonefixe'   => $this->request->getPost('txtTelephonefixe'),
             'telephonemobile' => $this->request->getPost('txtTelephonemobile'),
-            'MEL'             => $this->request->getPost('txtMEL'),
+            'mel'             => $this->request->getPost('txtMEL'),
             'motdepasse'      => $this->request->getPost('txtMotdepasse'),  // Sécurisation du mot de passe
         ];
 
@@ -251,6 +252,7 @@ public function modifiermoncompte()
         'adresse'   => 'required',
         'codepostal'=> 'required|alpha_numeric',
         'ville'     => 'required',
+        'motdepasse'=> 'required',
         // Les téléphones sont optionnels, validation seulement si activés
     ];
 
@@ -274,6 +276,7 @@ public function modifiermoncompte()
     $adresse = $this->request->getPost('adresse');
     $codepostal = $this->request->getPost('codepostal');
     $ville = $this->request->getPost('ville');
+    $motdepasse = $this->request->getPost('motdepasse');
 
     // Gestion des téléphones avec cases à cocher
     $telephonefixe = $this->request->getPost('active_fixe') ? $this->request->getPost('telephonefixe') : null;
@@ -288,6 +291,7 @@ public function modifiermoncompte()
         'ville'           => $ville,
         'telephonefixe'   => $telephonefixe,
         'telephonemobile' => $telephonemobile,
+        'motdepasse'      => $motdepasse,
     ];
 
     $modUtilisateur = new ModeleUtilisateur();
@@ -448,11 +452,39 @@ public function horaires()
     }
 
     public function historique()
-    {
-        $data['TitreDeLaPage'] = 'Atlantik - Historique';
+{
+    $session = session();
+    $noClient = $session->get('NOCLIENT');
 
-        return view('Templates/Header', $data)
-                .view('Visiteur/vue_historiquereservation')
-                .view('Templates/Footer');
+    if (!$noClient) {
+        return redirect()->to('/login');
     }
+
+    $model = new \App\Models\ModeleReservations();
+
+    // Récupère toutes les réservations du client
+    $toutesReservations = $model->getHistoriqueReservationsParClientPaginated($noClient)->get()->getResultArray();
+
+    // Pagination manuelle
+    $perPage = 5;
+    $page = (int) ($this->request->getGet('page') ?? 1);
+    $total = count($toutesReservations);
+    $reservations = array_slice($toutesReservations, ($page - 1) * $perPage, $perPage);
+
+    $data = [
+        'TitreDeLaPage' => 'Atlantik - Historique',
+        'reservations' => $reservations,
+        'pager' => [
+            'total' => $total,
+            'page' => $page,
+            'perPage' => $perPage
+        ]
+    ];
+
+    return view('Templates/Header', $data)
+         . view('Visiteur/vue_historiquereservations', $data)
+         . view('Templates/Footer');
+}
+
+
 }

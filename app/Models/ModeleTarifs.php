@@ -31,7 +31,7 @@ class ModeleTarifs extends Model
         return $this->db->table('periode')
             ->select('NOPERIODE, DATEDEBUT, DATEFIN')
             ->where('DATEFIN >=', $today)
-            ->orderBy('DATEDEBUT', 'DESC')
+            ->orderBy('DATEDEBUT', 'ASC')
             ->limit(4)
             ->get()
             ->getResult();

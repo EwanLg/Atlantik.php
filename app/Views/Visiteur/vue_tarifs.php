@@ -12,8 +12,7 @@
         <th class="align-middle">Type</th>
         <?php 
             $today = date('Y-m-d');
-            $periodesReverses = array_reverse($periodes);
-            foreach ($periodesReverses as $periode) :
+            foreach ($periodes as $periode) :
                 $debut = date('Y-m-d', strtotime($periode->DATEDEBUT));
                 $fin = date('Y-m-d', strtotime($periode->DATEFIN));
 
@@ -23,11 +22,10 @@
             <th class="text-center align-middle">
     <div>
         <strong>
-            Période <?= $periode->NOPERIODE ?>
             <?php if ($isCurrent): ?>
-                <span class="badge bg-success ms-2">en cours</span>
+                <span class="badge bg-success fs-6">Période en cours</span>
             <?php elseif ($isFuture): ?>
-                <span class="badge bg-danger ms-2">à venir</span>
+                <span class="badge bg-danger fs-6">Période à venir</span>
             <?php endif; ?>
         </strong><br>
         <small><?= date('d/m/Y', strtotime($periode->DATEDEBUT)) ?> - <?= date('d/m/Y', strtotime($periode->DATEFIN)) ?></small>
@@ -43,7 +41,7 @@
         <tr>
             <td><?= $row->CATEGORIE ?></td>
             <td><?= $row->LIBELLETYPE ?></td>
-            <?php foreach (array_reverse($periodes) as $periode) : ?>
+            <?php foreach ($periodes as $periode) : ?>
                 <?php
                     // Chercher un tarif pour cette période
                     $tarifTrouve = '-';

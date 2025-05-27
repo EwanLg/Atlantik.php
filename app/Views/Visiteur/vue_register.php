@@ -35,14 +35,14 @@
 
         <div class="col-md-6 mb-3">
             <label for="txtTelephonefixe" class="form-label">Téléphone fixe</label>
-            <input type="text" class="form-control" id="txtTelephonefixe" name="txtTelephonefixe" value="<?= set_value('txtTelephonefixe'); ?>" required>
+            <input type="text" class="form-control" id="txtTelephonefixe" name="txtTelephonefixe" value="<?= set_value('txtTelephonefixe'); ?>">
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-6 mb-3">
             <label for="txtTelephonemobile" class="form-label">Téléphone mobile</label>
-            <input type="text" class="form-control" id="txtTelephonemobile" name="txtTelephonemobile" value="<?= set_value('txtTelephonemobile'); ?>" required>
+            <input type="text" class="form-control" id="txtTelephonemobile" name="txtTelephonemobile" value="<?= set_value('txtTelephonemobile'); ?>">
         </div>
 
         <div class="col-md-6 mb-3">
